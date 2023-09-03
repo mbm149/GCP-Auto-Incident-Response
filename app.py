@@ -4,34 +4,35 @@ import requests
 
 app = Flask(__name__)
 
-@app.get('/')
-def index():  
-    return render_template('index.html')
+@app.route('/' ,methods = ['GET','POST'])
+def index():
 
-
-
-@app.route('/results', methods = ['POST'])
-def results():
-
-    api_k = "c3e372f796f5a343511f0b56ac9201a0"
 
     if request.method == 'POST':
-        user_input = request.form['form_todo']
-        data_ = requests.get(f"https://api.openweathermap.org/data/2.5/weather?q={user_input}&APPID={api_k}")
+        city = request.form['form_city']
+        return  redirect(url_for("city", usr=city))
+    else:
+        return  render_template('index.html')
 
-        if data_.json()['cod'] == '404':
-            return 'No City found! <p> <br/> <a href="/">Back Home</a>'
-        else:
-            descripton = data_.json()['weather'][0]['description']
-            weather = data_.json()['weather'][0]['main']
-            temp = data_.json()['main']['temp']
-            feels_like = data_.json()['main']['feels_like']
-            humidity = data_.json()['main']['humidity']
 
-            return 'City  %s  <p> Temperatur:  %s  <p> Feels Like: %s <p>  Description:  %s  <p> Weather:  %s  <p>  Humidity:  %s  </p> <br/> <a href="/">Back Home</a>' % (user_input, temp, feels_like, descripton, weather, humidity)
-    return '#############  <p> <br/> <a href="/">Back Home</a>'
+@app.route("/<usr>")
+def city(usr):
+    api_k = "c3e372f796f5a343511f0b56ac9201a0"
+    data_ = requests.get(f"https://api.openweathermap.org/data/2.5/weather?q={usr}&APPID={api_k}")
+
+    if data_.json()['cod'] == '404':
+        return 'No City found! <p> <br/> <a href="/">Back Home</a>'
+    #else:
+    else:
+        descripton = data_.json()['weather'][0]['description']
+        weather = data_.json()['weather'][0]['main']
+        temp = data_.json()['main']['temp']
+        feels_like = data_.json()['main']['feels_like']
+        humidity = data_.json()['main']['humidity']
+
+        return  f"<h1> {usr} </h1>  <p> Temperature : {temp} F </p> <p> Weather : {weather} </p>  <p> Description : {descripton} </p> <p> Humidity : {humidity} </p> <p> Feels like : {feels_like} </p>  <p> <br/> <a href="'/'">Back Home</a> </p>" 
 
 
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0', port = 3000)
+    app.run(debug=True)
 
